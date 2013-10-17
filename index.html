@@ -82,16 +82,17 @@
 	db.transaction(populateDB, errorCB, successCB);
     function addrecord(tx) {
 		tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("'+$('#new_name').val()+'", "'+$('#new_club').val()+'")');
+		$("#SoccerPlayerList").append('<li><a href="#"><h3 class="ui-li-heading">'+$('#new_name').val()+'</h3><p class="ui-li-desc">Club '+$('#new_club').val()+'</p></a></li>');
     }
     function delallrecords(tx) {
 		tx.executeSql('DELETE FROM SoccerPlayer');
 		$("#SoccerPlayerList").html('');
     }
 	$('#add').click(function(){
-		db.transaction(addrecord, errorCB, successCB);
+		db.transaction(addrecord, errorCB,querySuccess);
 	});
 	$('#delete_all').click(function(){
-		db.transaction(delallrecords, errorCB, successCB);
+		db.transaction(delallrecords, errorCB);
 	});
 </script>
 </html>
