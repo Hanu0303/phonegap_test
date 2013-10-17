@@ -1,67 +1,68 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Storage Example</title>
-
-    <script type="text/javascript" charset="utf-8" src="cordova-2.1.0.js"></script>
-    <script type="text/javascript" charset="utf-8">
-
-    // Wait for Cordova to load
-    //
+<head>
+<title>Page Title</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="jquery.mobile-1.3.2.min.css" />
+<script src="js/cordova-2.1.0.js"></script>
+<script src="js/phonegap-1.1.0.js"></script>
+<script src="js/jquery-1.9.1.min.js"></script>
+<script src="js/jquery.mobile-1.3.2.min.js"></script>
+<script>
+//add listener when device ready
     document.addEventListener("deviceready", onDeviceReady, false);
-
-    // Populate the database 
-    //
-    function populateDB(tx) {
-        tx.executeSql('DROP TABLE IF EXISTS DEMO');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS DEMO (id unique, data)');
-        tx.executeSql('INSERT INTO DEMO (id, data) VALUES (1, "First row")');
-        tx.executeSql('INSERT INTO DEMO (id, data) VALUES (2, "Second row")');
-    }
-
-    // Query the database
-    //
-    function queryDB(tx) {
-        tx.executeSql('SELECT * FROM DEMO', [], querySuccess, errorCB);
-    }
-
-    // Query the success callback
-    //
-    function querySuccess(tx, results) {
-  console.log("Returned rows = " + results.rows.length);
-  // this will be true since it was a select statement and so rowsAffected was 0
-  if (!results.rowsAffected) {
-    console.log('No rows affected!');
-    return false;
-  }
-  // for an insert statement, this property will return the ID of the last inserted row
-  console.log("Last inserted row ID = " + results.insertId);
-    }
-
-    // Transaction error callback
-    //
-    function errorCB(err) {
-        console.log("Error processing SQL: "+err.code);
-    }
-
-    // Transaction success callback
-    //
-    function successCB() {
-        var db = window.openDatabase("Database", "1.0", "Cordova Demo", 200000);
-        db.transaction(queryDB, errorCB);
-    }
-
-    // Cordova is ready
-    //
-    function onDeviceReady() {
-        var db = window.openDatabase("Database", "1.0", "Cordova Demo", 200000);
+    var db = window.openDatabase("Dummy_DB", "1.0", "Just a Dummy DB", 200000); //will create database Dummy_DB or open it
+ 
+    //function will be called when device ready
+    function onDeviceReady(){
         db.transaction(populateDB, errorCB, successCB);
     }
-
-    </script>
-  </head>
-  <body>
-    <h1>Example</h1>
-    <p>Database</p>
-  </body>
+ 
+    //create table and insert some record
+    function populateDB(tx) {
+        tx.executeSql('CREATE TABLE IF NOT EXISTS SoccerPlayer (id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Club TEXT NOT NULL)');
+        tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("Alexandre Pato", "AC Milan")');
+        tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("Van Persie", "Arsenal")');
+    }
+ 
+    //function will be called when an error occurred
+    function errorCB(err) {
+        alert("Error processing SQL: "+err.code);
+    }
+ 
+    //function will be called when process succeed
+    function successCB() {
+        alert("success!");
+        db.transaction(queryDB,errorCB);
+    }
+ 
+    //select all from SoccerPlayer
+    function queryDB(tx){
+        tx.executeSql('SELECT * FROM SoccerPlayer',[],querySuccess,errorCB);
+    }
+ 
+    function querySuccess(tx,result){
+        $('#SoccerPlayerList').empty();
+        $.each(result.rows,function(index){
+            var row = result.rows.item(index);
+            $('#SoccerPlayerList').append('<li><a href="#"><h3 class="ui-li-heading">'+row['Name']+'</h3><p class="ui-li-desc">Club '+row['Club']+'</p></a></li>');
+        });
+ 
+        $('#SoccerPlayerList').listview();
+    }
+</script>
+</head>
+<body>
+ 
+<div data-role="page">
+  <div data-role="header" data-position="fixed" data-theme="b">
+    <h1>Soccer Player</h1>
+  </div>
+  <div data-role="content">
+     <ul id="SoccerPlayerList">
+    </ul>
+  </div>
+</div>
+<!--end of Soccer Player Page--->
+</body>
 </html>
