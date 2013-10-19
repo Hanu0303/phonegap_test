@@ -7,16 +7,50 @@
 <script src="js/phonegap-1.1.0.js"></script>
 <script src="js/jquery-1.9.1.min.js"></script>
 <script src="js/jquery.mobile-1.3.2.min.js"></script>
+
+</head>
+<body>
+
+<div data-role="page">
+  <div data-role="header" data-position="fixed" data-theme="b">
+    <h1>Soccer Player</h1>
+  </div>
+  <div data-role="content">
+	<div id="myImage"></div>
+     <ul id="SoccerPlayerList">
+    </ul>
+	<div id="my form">
+		<div>Name<input type="text" value="" id="new_name" /></div>
+		<div>Club<input type="text" value="" id="new_club" /></div>
+	</div>
+	<input type="button" id="add" value="ADD" /> 
+	<input type="button" id="delete_all" value="DELETE ALL" /> 
+	<input type="button" id="take_photo" value="TAKE PHOTO" /> 
+  </div>
+</div>
+
+<!--end of Soccer Player Page--->
+</body>
 <script>
-//add listener when device ready
+	//add listener when device ready
     //document.addEventListener("deviceready", onDeviceReady, false);
     var db = window.openDatabase("Dummy_DB", "1.0", "Just a Dummy DB", 200000); //will create database Dummy_DB or open it
- 
-    //function will be called when device ready
-   // function onDeviceReady(){
-     //   db.transaction(populateDB, errorCB, successCB);
+	// function onDeviceReady(){
+	db.transaction(populateDB, errorCB, successCB);
     //}
- 
+	
+
+	
+	//DATABASE Controllers----------------------------------------------------------
+    function addrecord(tx) {
+		tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("'+$('#new_name').val()+'", "'+$('#new_club').val()+'")');
+		$("#SoccerPlayerList").append('<li><a href="#"><h3 class="ui-li-heading">'+$('#new_name').val()+'</h3><p class="ui-li-desc">Club '+$('#new_club').val()+'</p></a></li>');
+    }
+    function delallrecords(tx) {
+		tx.executeSql('DELETE FROM SoccerPlayer');
+		$("#SoccerPlayerList").html('');
+    }
+	
     //create table and insert some record
     function populateDB(tx) {
         tx.executeSql('CREATE TABLE IF NOT EXISTS SoccerPlayer (id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Club TEXT NOT NULL)');
@@ -55,44 +89,32 @@
 			}
 		}
     }
+	//-----------------------------------------
+	//Camera ---------------------------------------------
 	
-</script>
-</head>
-<body>
 
-<div data-role="page">
-  <div data-role="header" data-position="fixed" data-theme="b">
-    <h1>Soccer Player</h1>
-  </div>
-  <div data-role="content">
-     <ul id="SoccerPlayerList">
-    </ul>
-	<div id="my form">
-		<div>Name<input type="text" value="" id="new_name" /></div>
-		<div>Club<input type="text" value="" id="new_club" /></div>
-	</div>
-	<input type="button" id="add" value="ADD" /> 
-	<input type="button" id="delete_all" value="DELETE ALL" /> 
-  </div>
-</div>
+	function onSuccess(imageData) {
+		var image = document.getElementById('myImage');
+		image.src = "data:image/jpeg;base64," + imageData;
+		alert();
+	}
 
-<!--end of Soccer Player Page--->
-</body>
-<script>
-	db.transaction(populateDB, errorCB, successCB);
-    function addrecord(tx) {
-		tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("'+$('#new_name').val()+'", "'+$('#new_club').val()+'")');
-		$("#SoccerPlayerList").append('<li><a href="#"><h3 class="ui-li-heading">'+$('#new_name').val()+'</h3><p class="ui-li-desc">Club '+$('#new_club').val()+'</p></a></li>');
-    }
-    function delallrecords(tx) {
-		tx.executeSql('DELETE FROM SoccerPlayer');
-		$("#SoccerPlayerList").html('');
-    }
+	function onFail(message) {
+		alert('Failed because: ' + message);
+	}
+	//----------------------------------------------------
+	
+	//DOM actions ----------------------------------------
 	$('#add').click(function(){
 		db.transaction(addrecord, errorCB,querySuccess);
 	});
 	$('#delete_all').click(function(){
 		db.transaction(delallrecords, errorCB);
 	});
+	$('#take_photo').click(function(){
+		navigator.camera.getPicture(onSuccess, onFail, { quality: 50 }); 
+	});
+	//-----------------------------------------------------
+
 </script>
 </html>
